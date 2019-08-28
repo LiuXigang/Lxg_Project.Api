@@ -220,5 +220,26 @@ namespace Project.Domain.AggregatesModel
             this.Viewers = new List<ProjectViewer>();
             this.Contributors = new List<ProjectContributor>();
         }
+        public void AddViewer(int userId, string userName, string avatar)
+        {
+            var viewer = new ProjectViewer
+            {
+                UserId = userId,
+                UserName = userName,
+                Avatar = avatar
+            };
+            if (!Viewers.Any(v => v.UserId == userId))
+            {
+                Viewers.Add(viewer);
+            }
+        }
+
+        public void AddContributor(ProjectContributor contributor)
+        {
+            if (!Contributors.Any(v => v.Id == contributor.Id))
+            {
+                Contributors.Add(contributor);
+            }
+        }
     }
 }
