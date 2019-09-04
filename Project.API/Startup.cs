@@ -13,6 +13,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Project.API.Application.Commands;
+using Project.API.Application.Queries;
+using Project.API.Application.Service;
 using Project.Infrastructure;
 
 namespace Project.API
@@ -29,14 +31,17 @@ namespace Project.API
         public void ConfigureServices(IServiceCollection services)
         {
             var migrationsAssembly = typeof(Startup).Assembly.GetName().Name;
+            var conn = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<ProjectContext>(options =>
-            {
-                options.UseMySQL(Configuration.GetConnectionString("DefaultConnection"),
-                    sql => sql.MigrationsAssembly(migrationsAssembly)
-                );
-            }
+                {
+                    options.UseMySQL(conn, sql => sql.MigrationsAssembly(migrationsAssembly));
+                }
             );
             services.AddMediatR(MyConfigure.HandlerAssemblyMarkerTypes());
+
+            services.AddScoped<IRecommendService, RecommendService>();
+            services.AddScoped<IProjectQueries, ProjectQueries>(sp => { return new ProjectQueries(conn); });
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
