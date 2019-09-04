@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Project.API.Application.Commands;
+using Project.Infrastructure;
 
 namespace Project.API
 {
@@ -26,6 +28,14 @@ namespace Project.API
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var migrationsAssembly = typeof(Startup).Assembly.GetName().Name;
+            services.AddDbContext<ProjectContext>(options =>
+            {
+                options.UseMySQL(Configuration.GetConnectionString("DefaultConnection"),
+                    sql => sql.MigrationsAssembly(migrationsAssembly)
+                );
+            }
+            );
             services.AddMediatR(MyConfigure.HandlerAssemblyMarkerTypes());
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }

@@ -9,21 +9,28 @@ namespace Project.Infrastructure.Repositories
 {
     public class ProjectRepository : IProjectRepository
     {
-        public IUnitOfWork UnitOfWork => throw new NotImplementedException();
+        private readonly ProjectContext _context;
+        public IUnitOfWork UnitOfWork => _context;
+        public ProjectRepository(ProjectContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
         public Domain.AggregatesModel.Project Add(Domain.AggregatesModel.Project project)
         {
-            throw new NotImplementedException();
+            if (project.IsTransient())
+            {
+                _context.Add(project);
+            }
+            return project;
         }
 
-        public Task<Domain.AggregatesModel.Project> GetAsync(int id)
+        public async Task<Domain.AggregatesModel.Project> GetAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _context.FindAsync<Domain.AggregatesModel.Project>(id);
         }
 
         public Domain.AggregatesModel.Project Update(Domain.AggregatesModel.Project project)
         {
-            throw new NotImplementedException();
+            _context.Update(project);
+            return project;
         }
     }
 }
