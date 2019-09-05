@@ -133,8 +133,6 @@ namespace Project.Domain.AggregatesModel
         /// 项目枚举属性
         /// </summary>
         public List<ProjectProperty> Properties { get; set; }
-
-
         /// <summary>
         /// 
         /// </summary>
@@ -222,6 +220,7 @@ namespace Project.Domain.AggregatesModel
         {
             this.Viewers = new List<ProjectViewer>();
             this.Contributors = new List<ProjectContributor>();
+            this.AddDomainEvent(new ProjectCreatedEvent { Project = this });
         }
         public void AddViewer(int userId, string userName, string avatar)
         {

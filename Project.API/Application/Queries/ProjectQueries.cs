@@ -1,5 +1,5 @@
-﻿using MySql.Data.MySqlClient;
-using Dapper;
+﻿using Dapper;
+using MySql.Data.MySqlClient;
 using System.Threading.Tasks;
 
 namespace Project.API.Application.Queries

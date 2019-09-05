@@ -1,21 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Project.API.Application.Commands;
 using Project.API.Application.Queries;
 using Project.API.Application.Service;
+using Project.Domain.AggregatesModel;
 using Project.Infrastructure;
+using Project.Infrastructure.Repositories;
 
 namespace Project.API
 {
@@ -34,13 +28,23 @@ namespace Project.API
             var conn = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<ProjectContext>(options =>
                 {
-                    options.UseMySQL(conn, sql => sql.MigrationsAssembly(migrationsAssembly));
+                    options.UseMySql(conn, sql => sql.MigrationsAssembly(migrationsAssembly));
                 }
             );
             services.AddMediatR(MyConfigure.HandlerAssemblyMarkerTypes());
 
             services.AddScoped<IRecommendService, RecommendService>();
             services.AddScoped<IProjectQueries, ProjectQueries>(sp => { return new ProjectQueries(conn); });
+            services.AddScoped<IProjectRepository, ProjectRepository>();
+
+            #region cap
+            services.AddCap(options =>
+            {
+                options.UseMySql(conn)
+                    .UseRabbitMQ("localhost")
+                    .UseDashboard();
+            });
+            #endregion
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
